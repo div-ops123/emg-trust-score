@@ -51,18 +51,34 @@ down-weighted or reviewed before it reaches a training set.
 
 ## Scope of this repo
 
-This is a small proof of concept, not a production system and not a
-replacement for a real force decoder:
+This project focuses on one failure mode only: **muscle fatigue drift within a
+single continuous session, for a single wearer.**
 
-- Uses public surface EMG data with repeated/sustained contractions
-  (fatigue-inducing), not proprietary hardware or data.
-- Trains a simple baseline EMG-to-force regressor to make the drift visible
-  and measurable.
-- Builds a signal-quality feature set (spectral, amplitude, cross-channel)
-  and checks whether it tracks the regressor's growing error over a session.
-- Stops there. A real deployment would need per-subject calibration
-  baselines, thresholding, and integration into a live collection pipeline —
-  none of which this repo attempts.
+Two other real failure modes exist in this space and are deliberately left
+out of this v1:
 
-The goal is to demonstrate the failure mode is real and measurable, and that
-a first-pass detector is feasible from signal properties alone.
+- **Electrode shift** — no public dataset captures ground-truth electrode
+  displacement, so this would require simulating it. Simulated drift is a
+  weaker demonstration than a real, measured one, so it's left for a future
+  version.
+- **Cross-subject variance** — this is a generalization gap present from the
+  start of a session, not something that drifts over time. It's a different
+  problem (calibration transfer) from the one this repo is testing, so it's
+  intentionally out of scope here rather than blended in.
+
+What this repo does:
+
+- Uses a public dataset of a single continuous, sustained isometric
+  contraction, with EMG and true force recorded together throughout — one
+  subject, one session, no proprietary hardware or data.
+- Trains a simple baseline EMG-to-force regressor to make fatigue-driven
+  decoding error visible and measurable over the session.
+- Builds a signal-quality feature set (spectral median frequency, RMS
+  amplitude trend) and checks whether it tracks the regressor's growing
+  error as fatigue sets in — without ever using the true force to do it.
+- Stops there. A real deployment would need multi-subject validation,
+  electrode-shift handling, calibration baselines, and thresholding — none
+  of which this repo attempts.
+
+The goal is to show the fatigue failure mode is real, measurable, and
+detectable from signal properties alone — not to solve it end-to-end.
